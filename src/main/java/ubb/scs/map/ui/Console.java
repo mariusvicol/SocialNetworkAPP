@@ -25,11 +25,11 @@ public class Console {
     }
 
     private void addDefault(){
-        networkService.addUser(1L, "Vicol", "Marius");
-        networkService.addUser(2L, "Popescu", "Ion");
-        networkService.addUser(3L, "Ionescu", "Maria");
-        networkService.addUser(4L, "Georgescu", "Cristina");
-        networkService.addUser(5L, "Mihalescu", "Mihai");
+        networkService.addUser("Vicol", "Marius");
+        networkService.addUser("Popescu", "Ion");
+        networkService.addUser("Ionescu", "Maria");
+        networkService.addUser("Georgescu", "Cristina");
+        networkService.addUser("Mihalescu", "Mihai");
 
         networkService.addFriendship(1L, 5L);
         networkService.addFriendship(2L, 4L);
@@ -70,14 +70,12 @@ public class Console {
     }
 
     private void addUserUI(){
-        System.out.print("Insert user's ID: ");
-        Long id = scanner.nextLong();
         System.out.print("Insert user's first name: ");
         String firstName = scanner.next();
         System.out.print("Insert user's last name: ");
         String lastName = scanner.next();
         try {
-            User user = networkService.addUser(id, firstName, lastName);
+            User user = networkService.addUser(firstName, lastName);
             if (user != null) {
                 System.out.println(ANSI_RED+"User already exists."+ ANSI_RESET);
             } else {
@@ -107,9 +105,6 @@ public class Console {
         catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
-        catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
     }
 
     private void addFriendUI(){
@@ -123,7 +118,7 @@ public class Console {
                 System.out.println("Friendship was successfully added.");
             }
             else{
-                System.out.println(ANSI_RED+"Friendship already exists."+ ANSI_RESET);
+                System.out.println(ANSI_RED+"Friendship already exists or users doesn't exit."+ ANSI_RESET);
             }
         }
         catch (IllegalArgumentException e) {

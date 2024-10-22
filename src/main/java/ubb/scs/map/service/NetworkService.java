@@ -55,13 +55,18 @@ public class NetworkService {
     }
 
     /**
-     * @param id User's id
      * @param firstName User's first name
      * @param lastName User's last name
-     * @return User object for user with id id, first name firstName and last name lastName.
+     * @return User object for user with id incremented, first name firstName and last name lastName.
      */
-    public User addUser(Long id, String firstName, String lastName){
+    public User addUser(String firstName, String lastName){
+        Long id = 1L;
         User user = new User(firstName, lastName);
+        for(User user1 : userRepository.findAll()){
+            if(user1.getId() >= id){
+                id = user1.getId() + 1;
+            }
+        }
         user.setId(id);
         return userRepository.save(user);
     }
@@ -123,13 +128,13 @@ public class NetworkService {
         friendship.setDate(LocalDateTime.now());
         User user1 = userRepository.findOne(idUser1);
         User user2 = userRepository.findOne(idUser2);
-        if(user1 != null && user2 != null){
+        if(user1 != null && user2 != null && !user1.getFriends().contains(user2)) {
             user1.addFriend(user2);
             user2.addFriend(user1);
             return friendshipRepository.save(friendship);
         }
         else
-            return null;
+            return friendship;
     }
 
     /**
