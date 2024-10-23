@@ -8,6 +8,7 @@ import ubb.scs.map.repository.Repository;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class InMemoryRepository<ID, E extends Entity<ID>> implements Repository<ID,E> {
 
@@ -28,10 +29,10 @@ public class InMemoryRepository<ID, E extends Entity<ID>> implements Repository<
      * @return the entity with the specified id
      */
     @Override
-    public E findOne(ID id) {
+    public Optional<E> findOne(ID id) {
         if (id==null)
             throw new IllegalArgumentException("id must be not null");
-        return entities.get(id);
+        return Optional.ofNullable(entities.get(id));
     }
 
     /**
@@ -43,37 +44,32 @@ public class InMemoryRepository<ID, E extends Entity<ID>> implements Repository<
     }
 
     @Override
-    public E save(E entity) throws ValidationException {
+    public Optional<E> save(E entity) throws ValidationException {
         if(entity==null)
             throw new IllegalArgumentException("Entity cannot be null");
         validator.validate(entity);
-        if(entities.containsKey(entity.getId()))
-            return entity;
-        else{
-            entities.put(entity.getId(),entity);
-            return null;
-        }
+        return Optional.ofNullable(entities.putIfAbsent(entity.getId(),entity));
     }
 
     @Override
-    public E delete(ID id) {
+    public Optional<E> delete(ID id) {
         if (id == null) {
             throw new IllegalArgumentException("Id must be not null!");
         }
-        return entities.remove(id);
+        return Optional.ofNullable(entities.remove(id));
     }
 
     @Override
-    public E update(E entity) {
+    public Optional<E> update(E entity) {
         if (entity == null) {
             throw new IllegalArgumentException("Entity must not be null!");
         }
         validator.validate(entity);
         if (entities.containsKey(entity.getId())) {
             entities.put(entity.getId(), entity);
-            return entity;
+            return Optional.empty();
         } else {
-            return null;
+            return Optional.of(entity);
         }
     }
 }

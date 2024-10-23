@@ -10,7 +10,7 @@ public class FriendshipValidator implements Validator<Friendship> {
             errors += "The ids of the users must not be null!\n";
         }
         if (entity.getIdUser1().equals(entity.getIdUser2())) {
-            errors += "The ids of the users must be different!\n";
+            errors += "User cannot be friend with himself!\n";
         }
         if (!errors.isEmpty()) {
             throw new ValidationException(errors);

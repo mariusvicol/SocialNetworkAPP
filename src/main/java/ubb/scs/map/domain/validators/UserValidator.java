@@ -17,6 +17,9 @@ public class UserValidator implements Validator<User> {
         if (entity.getLastName() == null || entity.getLastName().isEmpty()) {
             errors += "The last name of the user must not be null or empty!\n";
         }
+        if(!entity.getFirstName().matches("[a-zA-Z]+") || !entity.getLastName().matches("[a-zA-Z]+")){
+            errors += "The first name and last name must contain only letters!\n";
+        }
         if (!errors.isEmpty()) {
             throw new ValidationException(errors);
         }

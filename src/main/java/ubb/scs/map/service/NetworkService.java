@@ -3,7 +3,9 @@ package ubb.scs.map.service;
 import ubb.scs.map.domain.Friendship;
 import ubb.scs.map.domain.Tuple;
 import ubb.scs.map.domain.User;
+import ubb.scs.map.domain.validators.ValidationException;
 import ubb.scs.map.repository.Repository;
+import ubb.scs.map.repository.file.UtilizatorRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,18 +26,17 @@ public class NetworkService {
     public NetworkService(Repository<Long, User> userRepository, Repository<Tuple<Long, Long>, Friendship> friendshipRepository) {
         this.userRepository = userRepository;
         this.friendshipRepository = friendshipRepository;
-        addAllFriendsLoad();
+        if(userRepository.getClass() == UtilizatorRepository.class)
+            addAllFriendsLoad();
     }
 
     /// TODO: Find a better solution for adding all friends from file that contains friendships..
     private void addAllFriendsLoad(){
         for(Friendship friendship : friendshipRepository.findAll()){
-            User user1 = userRepository.findOne(friendship.getIdUser1());
-            User user2 = userRepository.findOne(friendship.getIdUser2());
-            if(user1 != null && user2 != null){
-                user1.addFriend(user2);
-                user2.addFriend(user1);
-            }
+            User user1 = userRepository.findOne(friendship.getIdUser1()).orElseThrow();
+            User user2 = userRepository.findOne(friendship.getIdUser2()).orElseThrow();
+            user1.addFriend(user2);
+            user2.addFriend(user1);
         }
     }
 
@@ -44,7 +45,7 @@ public class NetworkService {
      * @return User object for user with userId id.
      */
     public User getUser(Long userId) {
-        return userRepository.findOne(userId);
+        return userRepository.findOne(userId).orElseThrow();
     }
 
     /**
@@ -54,21 +55,25 @@ public class NetworkService {
         return userRepository.findAll();
     }
 
+    private Long getNewUserId(){
+        Long id = 1L;
+        for(User user : userRepository.findAll()){
+            if(user.getId() >= id){
+                id = user.getId() + 1;
+            }
+        }
+        return id;
+    }
+
     /**
      * @param firstName User's first name
      * @param lastName User's last name
-     * @return User object for user with id incremented, first name firstName and last name lastName.
+     * adds a new user with first name firstName and last name lastName
      */
-    public User addUser(String firstName, String lastName){
-        Long id = 1L;
+    public void addUser(String firstName, String lastName){
         User user = new User(firstName, lastName);
-        for(User user1 : userRepository.findAll()){
-            if(user1.getId() >= id){
-                id = user1.getId() + 1;
-            }
-        }
-        user.setId(id);
-        return userRepository.save(user);
+        user.setId(getNewUserId());
+        userRepository.save(user);
     }
 
     /**
@@ -76,7 +81,11 @@ public class NetworkService {
      * revokes all friendships of user with id id
      */
     private void deleteAllFriends(Long id){
+        List<Friendship> friendships = new ArrayList<>();
         for(Friendship friendship : friendshipRepository.findAll()){
+            friendships.add(new Friendship(friendship.getIdUser1(), friendship.getIdUser2()));
+        }
+        for(Friendship friendship : friendships){
             if(friendship.getIdUser1().equals(id)|| friendship.getIdUser2().equals(id)){
                 Long idMin = min(friendship.getIdUser1(), friendship.getIdUser2());
                 Long idMax = max(friendship.getIdUser1(), friendship.getIdUser2());
@@ -87,15 +96,17 @@ public class NetworkService {
 
     /**
      * @param id User's id
-     * @return User object for user with id id, if it exists, null otherwise.
+     * removes user with id id
      */
-    public User removeUser(Long id){
-        User user = userRepository.findOne(id);
-        if(user != null){
+    public void removeUser(Long id){
+        try {
+            userRepository.findOne(id).orElseThrow(ValidationException::new);
             deleteAllFriends(id);
-            return userRepository.delete(id);
+            userRepository.delete(id);
         }
-        return null;
+        catch (ValidationException e){
+            throw new ValidationException("User not found.");
+        }
     }
 
     /**
@@ -103,11 +114,13 @@ public class NetworkService {
      * @return list of friends of user with id id
      */
     public List<User> getFriends(Long id){
-        User user = userRepository.findOne(id);
-        if (user != null)
+        try {
+            User user = userRepository.findOne(id).orElseThrow(ValidationException::new);
             return user.getFriends();
-        else
-            return null;
+        }
+        catch (ValidationException e){
+            throw new ValidationException("User not found.");
+        }
     }
 
     /**
@@ -120,40 +133,53 @@ public class NetworkService {
     /**
      * @param idUser1 User1's id
      * @param idUser2 User2's id
-     * @return Friendship object which was added for the friendship between user1 with id idUser1 and user2 with id idUser2.
+     * adds a new friendship between user1 with id idUser1 and user2 with id idUser2
      */
-    public Friendship addFriendship(Long idUser1, Long idUser2){
+    public void addFriendship(Long idUser1, Long idUser2){
         Friendship friendship = new Friendship(idUser1, idUser2);
-        friendship.setId(new Tuple<>(idUser1, idUser2));
+        Long idMin = min(idUser1, idUser2);
+        Long idMax = max(idUser1, idUser2);
+        friendship.setId(new Tuple<>(idMin, idMax));
         friendship.setDate(LocalDateTime.now());
-        User user1 = userRepository.findOne(idUser1);
-        User user2 = userRepository.findOne(idUser2);
-        if(user1 != null && user2 != null && !user1.getFriends().contains(user2)) {
+        User user1;
+        User user2;
+        try {
+            user1 = userRepository.findOne(idUser1).orElseThrow(ValidationException::new);
+            user2 = userRepository.findOne(idUser2).orElseThrow(ValidationException::new);
+        }
+        catch (ValidationException e){
+            throw new ValidationException("Users not found.");
+        }
+        for(Friendship friendship1 : friendshipRepository.findAll()){
+            if(friendship1.getIdUser1().equals(friendship.getIdUser1()) && friendship1.getIdUser2().equals(friendship.getIdUser2())){
+                throw new ValidationException("Friendship already exists.");
+            }
+        }
+        if (!user1.getFriends().contains(user2)) {
             user1.addFriend(user2);
             user2.addFriend(user1);
-            return friendshipRepository.save(friendship);
+            friendshipRepository.save(friendship);
         }
-        else
-            return friendship;
     }
 
     /**
      * @param idUser1 User1's id
      * @param idUser2 User2's id
-     * @return Friendship object which was deleted for the friendship between user1 with id idUser1 and user2 with id idUser2, null otherwise.
+     * removes friendship between user1 with id idUser1 and user2 with id idUser2
      */
-    public Friendship removeFriendship(Long idUser1, Long idUser2){
+    public void removeFriendship(Long idUser1, Long idUser2){
         Long idMin = min(idUser1, idUser2);
         Long idMax = max(idUser1, idUser2);
         Tuple<Long, Long> idTuple = new Tuple<>(idMin, idMax);
-        User user1 = userRepository.findOne(idUser1);
-        User user2 = userRepository.findOne(idUser2);
-        if(user1 != null && user2 != null){
+        try {
+            User user1 = userRepository.findOne(idUser1).orElseThrow(ValidationException::new);
+            User user2 = userRepository.findOne(idUser2).orElseThrow(ValidationException::new);
             user1.removeFriend(user2);
             user2.removeFriend(user1);
-            return friendshipRepository.delete(idTuple);
         }
-        else
-            return null;
+        catch (ValidationException e){
+            throw new ValidationException("Users not found.");
+        }
+        friendshipRepository.delete(idTuple);
     }
 }

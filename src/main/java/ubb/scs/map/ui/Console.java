@@ -75,15 +75,11 @@ public class Console {
         System.out.print("Insert user's last name: ");
         String lastName = scanner.next();
         try {
-            User user = networkService.addUser(firstName, lastName);
-            if (user != null) {
-                System.out.println(ANSI_RED+"User already exists."+ ANSI_RESET);
-            } else {
-                System.out.println("User successfully added.");
-            }
+            networkService.addUser(firstName, lastName);
+            System.out.println("User was successfully added.");
         }
         catch (ValidationException e) {
-            System.out.println(e.getMessage());
+            System.out.println(ANSI_RED+e.getMessage()+ANSI_RESET);
         }
         catch (IllegalArgumentException e){
             e.printStackTrace();
@@ -92,18 +88,16 @@ public class Console {
 
     private void deleteUserUI(){
         System.out.print("Insert user's ID: ");
+        Long id = scanner.nextLong();
         try{
-            Long id = scanner.nextLong();
-            User user = networkService.removeUser(id);
-            if (user == null) {
-                System.out.println(ANSI_RED+"User not found."+ ANSI_RESET);
-            }
-            else{
-                System.out.println(user + " was successfully deleted." );
-            }
+            networkService.removeUser(id);
+            System.out.println("User was successfully deleted.");
         }
         catch (IllegalArgumentException e) {
             e.printStackTrace();
+        }
+        catch (ValidationException e){
+            System.out.println(ANSI_RED+e.getMessage()+ANSI_RESET);
         }
     }
 
@@ -113,19 +107,14 @@ public class Console {
             Long idFriend1 = scanner.nextLong();
             System.out.print("Insert his friend ID: ");
             Long idFriend2 = scanner.nextLong();
-            Friendship friendship = networkService.addFriendship(idFriend1, idFriend2);
-            if(friendship == null){
-                System.out.println("Friendship was successfully added.");
-            }
-            else{
-                System.out.println(ANSI_RED+"Friendship already exists or users doesn't exit."+ ANSI_RESET);
-            }
+            networkService.addFriendship(idFriend1, idFriend2);
+            System.out.println("Friendship was successfully added.");
         }
         catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
         catch (ValidationException e) {
-            System.out.println(e.getMessage());
+            System.out.println(ANSI_RED+e.getMessage()+ANSI_RESET);
         }
     }
 
@@ -135,44 +124,37 @@ public class Console {
             Long idFriend1 = scanner.nextLong();
             System.out.print("Insert his friend ID: ");
             Long idFriend2 = scanner.nextLong();
-            Friendship friendship = networkService.removeFriendship(idFriend1, idFriend2);
-            if(friendship == null){
-                System.out.println(ANSI_RED+"Friendship does not exist."+ ANSI_RESET);
-            }
-            else{
-                System.out.println("Friendship was successfully deleted.");
-            }
+            networkService.removeFriendship(idFriend1, idFriend2);
+            System.out.println("Friendship was successfully deleted.");
         }
         catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
-        catch (Exception e) {
-            System.out.println(e.getMessage());
+        catch (ValidationException e) {
+            System.out.println(ANSI_RED+e.getMessage()+ANSI_RESET);
         }
     }
 
     private void printFriends(){
-        System.out.println("Insert user's ID: ");
+        System.out.print("Insert user's ID: ");
         try{
             Long idUser = scanner.nextLong();
             List<User> friends = networkService.getFriends(idUser);
-            if(friends == null){
-                System.out.println(ANSI_RED+"User not found."+ ANSI_RESET);
+            if(friends.isEmpty()){
+                System.out.println(ANSI_RED+"No friends found."+ ANSI_RESET);
             }
-            else{
-                if(friends.isEmpty()){
-                    System.out.println(ANSI_RED+"No friends found."+ ANSI_RESET);
-                }
-                else {
-                    System.out.println("User's friends list: ");
-                    for (User user : friends) {
-                        System.out.println(user.toString());
-                    }
+            else {
+                System.out.println("User's friends list: ");
+                for (User user : friends) {
+                    System.out.println(user.toString());
                 }
             }
         }
         catch (IllegalArgumentException e) {
             e.printStackTrace();
+        }
+        catch (ValidationException e) {
+            System.out.println(ANSI_RED+e.getMessage()+ANSI_RESET);
         }
     }
 

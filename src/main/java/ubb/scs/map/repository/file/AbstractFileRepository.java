@@ -5,6 +5,7 @@ import ubb.scs.map.domain.validators.Validator;
 import ubb.scs.map.repository.memory.InMemoryRepository;
 
 import java.io.*;
+import java.util.Optional;
 
 public abstract class AbstractFileRepository<ID, E extends Entity<ID>> extends InMemoryRepository<ID, E>{
     private final String filename;
@@ -55,7 +56,7 @@ public abstract class AbstractFileRepository<ID, E extends Entity<ID>> extends I
      * @return the entity with the specified id
      */
     @Override
-    public E findOne(ID id) {
+    public Optional<E> findOne(ID id) {
         return super.findOne(id);
     }
 
@@ -72,9 +73,9 @@ public abstract class AbstractFileRepository<ID, E extends Entity<ID>> extends I
      * @return null- if the given entity is saved
      */
     @Override
-    public E save(E entity) {
-        E e = super.save(entity);
-        if (e == null)
+    public Optional<E> save(E entity) {
+        Optional<E> e = super.save(entity);
+        if (e.isEmpty())
             writeToFile();
         return e;
     }
@@ -101,9 +102,9 @@ public abstract class AbstractFileRepository<ID, E extends Entity<ID>> extends I
      * @return the removed entity or null if there is no entity with the given id
      */
     @Override
-    public E delete(ID id) {
-        E deletedEntity = super.delete(id); // Use the inherited method from InMemoryRepository
-        if (deletedEntity != null) {
+    public Optional<E> delete(ID id) {
+        Optional<E> deletedEntity = super.delete(id); // Use the inherited method from InMemoryRepository
+        if (deletedEntity.isPresent()) {
             writeToFile(); // Update the file after deletion
         }
         return deletedEntity;
@@ -114,9 +115,9 @@ public abstract class AbstractFileRepository<ID, E extends Entity<ID>> extends I
      * @return the updated entity
      */
     @Override
-    public E update(E entity) {
-        E updatedEntity = super.update(entity); // Use the inherited method from InMemoryRepository
-        if (updatedEntity == null) {
+    public Optional<E> update(E entity) {
+        Optional<E> updatedEntity = super.update(entity); // Use the inherited method from InMemoryRepository
+        if (updatedEntity.isEmpty()) {
             writeToFile(); // Update the file after the update
         }
         return updatedEntity;

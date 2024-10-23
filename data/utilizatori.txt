@@ -1,5 +1,4 @@
 1;Vicol;Marius
-3;Ionescu;Maria
 4;Georgescu;Cristina
 5;Mihalescu;Mihai
 6;Ionescu;Marcel

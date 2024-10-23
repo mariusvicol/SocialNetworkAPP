@@ -16,7 +16,7 @@ public class Friendship extends Entity<Tuple<Long,Long>> {
 
     public Friendship(Long idUser1, Long idUser2) {
         this.idUser1 = min(idUser1, idUser2);
-        this.idUser2 = max(idUser2, idUser1);
+        this.idUser2 = max(idUser1, idUser2);
     }
 
     public Long getIdUser1() {

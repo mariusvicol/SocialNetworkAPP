@@ -41,7 +41,10 @@ public class Tuple<E1, E2> {
 
     @Override
     public boolean equals(Object obj) {
-        return this.e1.equals(((Tuple) obj).e1) && this.e2.equals(((Tuple) obj).e2);
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Tuple<?, ?> tuple = (Tuple<?, ?>) obj;
+        return Objects.equals(e1, tuple.e1) && Objects.equals(e2, tuple.e2);
     }
 
     @Override
