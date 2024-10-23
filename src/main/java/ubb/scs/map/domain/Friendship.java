@@ -31,14 +31,6 @@ public class Friendship extends Entity<Tuple<Long,Long>> {
     }
 
     /**
-     *
-     * @return the date when the friendship was created
-     */
-    public LocalDateTime getDate() {
-        return date;
-    }
-
-    /**
      * @param date - the date when the friendship was created
      */
     public void setDate(LocalDateTime date) {
