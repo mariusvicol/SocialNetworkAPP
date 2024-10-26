@@ -43,15 +43,15 @@ public class CommunitiesService {
         HashMap<Long, Boolean> visited = new HashMap<>();
         Iterable<User> users = networkService.getUsers();
         List<List<Long>> result = new ArrayList<>();
-        for(User u : users){
-            visited.put(u.getId(), Boolean.FALSE);
-        }
-        for(Long id : visited.keySet()){
+
+        users.forEach(user -> visited.put(user.getId(), Boolean.FALSE));
+
+        visited.keySet().forEach(id -> {
             if(!visited.get(id)){
                 List<Long> posibleResult = BFS(id,visited);
                 result.add(posibleResult);
             }
-        }
+        });
         return result;
     }
 
@@ -62,9 +62,7 @@ public class CommunitiesService {
         int number = 0;
         HashMap<Long, Boolean> visited = new HashMap<>();
         Iterable<User> users = networkService.getUsers();
-        for(User u : users){
-            visited.put(u.getId(), Boolean.FALSE);
-        }
+        users.forEach(user -> visited.put(user.getId(), Boolean.FALSE));
         for(Long id : visited.keySet()){
             if(!visited.get(id)){
                 BFS(id, visited);
@@ -81,9 +79,7 @@ public class CommunitiesService {
         HashMap<Long, Boolean> visited = new HashMap<>();
         Iterable<User> users = networkService.getUsers();
         List<Long> result = new ArrayList<>();
-        for(User u : users){
-            visited.put(u.getId(), Boolean.FALSE);
-        }
+        users.forEach(user -> visited.put(user.getId(), Boolean.FALSE));
         for(Long id : visited.keySet()){
             if(!visited.get(id)){
                 List<Long> posibleResult = BFS(id,visited);

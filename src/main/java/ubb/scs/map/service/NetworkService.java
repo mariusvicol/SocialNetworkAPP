@@ -82,11 +82,13 @@ public class NetworkService {
      */
     private void deleteAllFriends(Long id){
         List<Friendship> friendships = new ArrayList<>();
-        for(Friendship friendship : friendshipRepository.findAll()){
-            friendships.add(new Friendship(friendship.getIdUser1(), friendship.getIdUser2()));
-        }
-        for(Friendship friendship : friendships){
-            if(friendship.getIdUser1().equals(id)|| friendship.getIdUser2().equals(id)){
+        friendshipRepository.findAll().forEach(friendship1 -> {
+            if(friendship1.getIdUser1().equals(id) || friendship1.getIdUser2().equals(id)){
+                friendships.add(new Friendship(friendship1.getIdUser1(), friendship1.getIdUser2()));
+            }
+        });
+        for(Friendship friendship : friendships) {
+            if (friendship.getIdUser1().equals(id) || friendship.getIdUser2().equals(id)) {
                 Long idMin = min(friendship.getIdUser1(), friendship.getIdUser2());
                 Long idMax = max(friendship.getIdUser1(), friendship.getIdUser2());
                 removeFriendship(idMin, idMax);
@@ -150,11 +152,11 @@ public class NetworkService {
         catch (ValidationException e){
             throw new ValidationException("Users not found.");
         }
-        for(Friendship friendship1 : friendshipRepository.findAll()){
-            if(friendship1.getIdUser1().equals(friendship.getIdUser1()) && friendship1.getIdUser2().equals(friendship.getIdUser2())){
+        friendshipRepository.findAll().forEach(friendship1 -> {
+            if(friendshipRepository.findOne(friendship.getId()).isPresent()){
                 throw new ValidationException("Friendship already exists.");
             }
-        }
+        });
         if (!user1.getFriends().contains(user2)) {
             user1.addFriend(user2);
             user2.addFriend(user1);
