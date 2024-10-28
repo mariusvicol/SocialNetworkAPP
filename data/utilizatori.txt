@@ -1,6 +1,6 @@
 1;Vicol;Marius
-4;Georgescu;Cristina
-5;Mihalescu;Mihai
-6;Ionescu;Marcel
-7;Bilan;Marius
-8;Lupastean;Cristian
+2;Georgescu;Cristina
+3;Mihalescu;Mihai
+4;Ionescu;Marcel
+5;Bilan;Marius
+6;Lupastean;Cristian

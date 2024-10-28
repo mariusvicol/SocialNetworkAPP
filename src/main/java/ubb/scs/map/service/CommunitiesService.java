@@ -2,6 +2,7 @@ package ubb.scs.map.service;
 import ubb.scs.map.domain.User;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CommunitiesService {
     NetworkService networkService;
@@ -18,7 +19,7 @@ public class CommunitiesService {
      * @param visited - a map with the visited users
      * @return a list with the users from the comunity
      */
-    private List<Long> BFS(Long id, HashMap<Long, Boolean> visited){
+    private List<Long> BFS(Long id, Map<Long, Boolean> visited){
         Queue<Long> queue = new LinkedList<>();
         List<Long> result = new ArrayList<>();
         queue.add(id);
@@ -39,20 +40,16 @@ public class CommunitiesService {
         return result;
     }
 
-    public List<List<Long>> communities(){
-        HashMap<Long, Boolean> visited = new HashMap<>();
+    public List<List<Long>> communities() {
+        Map<Long, Boolean> visited = new HashMap<>();
         Iterable<User> users = networkService.getUsers();
-        List<List<Long>> result = new ArrayList<>();
 
-        users.forEach(user -> visited.put(user.getId(), Boolean.FALSE));
+        users.forEach(user -> visited.put(user.getId(), false));
 
-        visited.keySet().forEach(id -> {
-            if(!visited.get(id)){
-                List<Long> posibleResult = BFS(id,visited);
-                result.add(posibleResult);
-            }
-        });
-        return result;
+        return visited.keySet().stream()
+                .filter(id -> !visited.get(id))
+                .map(id -> BFS(id, visited))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -75,20 +72,18 @@ public class CommunitiesService {
     /**
      * @return the biggest comunity
      */
-    public List<Long> biggestComunity(){
-        HashMap<Long, Boolean> visited = new HashMap<>();
+    public List<Long> biggestComunity() {
+        Map<Long, Boolean> visited = new HashMap<>();
         Iterable<User> users = networkService.getUsers();
         List<Long> result = new ArrayList<>();
-        users.forEach(user -> visited.put(user.getId(), Boolean.FALSE));
-        for(Long id : visited.keySet()){
-            if(!visited.get(id)){
-                List<Long> posibleResult = BFS(id,visited);
-                if(posibleResult.size() >= result.size()){
-                    result = posibleResult;
-                }
-            }
-        }
-        return result;
+
+        users.forEach(user -> visited.put(user.getId(), false));
+
+        return visited.keySet().stream()
+                .filter(id -> !visited.get(id))
+                .map(id -> BFS(id, visited))
+                .max(Comparator.comparingInt(List::size))
+                .orElse(result);
     }
 }
 
