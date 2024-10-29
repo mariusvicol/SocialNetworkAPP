@@ -32,12 +32,12 @@ public class NetworkService {
 
     /// TODO: Find a better solution for adding all friends from file that contains friendships..
     private void addAllFriendsLoad(){
-        for(Friendship friendship : friendshipRepository.findAll()){
+        friendshipRepository.findAll().forEach(friendship -> {
             User user1 = userRepository.findOne(friendship.getIdUser1()).orElseThrow();
             User user2 = userRepository.findOne(friendship.getIdUser2()).orElseThrow();
             user1.addFriend(user2);
             user2.addFriend(user1);
-        }
+        });
     }
 
     /**
@@ -45,7 +45,7 @@ public class NetworkService {
      * @return User object for user with userId id.
      */
     public User getUser(Long userId) {
-        return userRepository.findOne(userId).orElseThrow();
+        return userRepository.findOne(userId).orElseThrow(ValidationException::new);
     }
 
     /**
@@ -55,14 +55,14 @@ public class NetworkService {
         return userRepository.findAll();
     }
 
-    private Long getNewUserId(){
-        Long id = 1L;
-        for(User user : userRepository.findAll()){
-            if(user.getId() >= id){
-                id = user.getId() + 1;
+    private Long getNewUserId() {
+        final Long[] id = {1L};
+        userRepository.findAll().forEach(user -> {
+            if (user.getId() >= id[0]) {
+                id[0] = user.getId() + 1;
             }
-        }
-        return id;
+        });
+        return id[0];
     }
 
     /**

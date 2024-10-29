@@ -103,9 +103,9 @@ public abstract class AbstractFileRepository<ID, E extends Entity<ID>> extends I
      */
     @Override
     public Optional<E> delete(ID id) {
-        Optional<E> deletedEntity = super.delete(id); // Use the inherited method from InMemoryRepository
+        Optional<E> deletedEntity = super.delete(id);
         if (deletedEntity.isPresent()) {
-            writeToFile(); // Update the file after deletion
+            writeToFile();
         }
         return deletedEntity;
     }
@@ -116,9 +116,9 @@ public abstract class AbstractFileRepository<ID, E extends Entity<ID>> extends I
      */
     @Override
     public Optional<E> update(E entity) {
-        Optional<E> updatedEntity = super.update(entity); // Use the inherited method from InMemoryRepository
+        Optional<E> updatedEntity = super.update(entity);
         if (updatedEntity.isEmpty()) {
-            writeToFile(); // Update the file after the update
+            writeToFile();
         }
         return updatedEntity;
     }
