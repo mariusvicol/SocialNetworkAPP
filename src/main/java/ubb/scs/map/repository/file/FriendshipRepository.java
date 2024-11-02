@@ -4,7 +4,7 @@ import ubb.scs.map.domain.Friendship;
 import ubb.scs.map.domain.Tuple;
 import ubb.scs.map.domain.validators.Validator;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class FriendshipRepository extends AbstractFileRepository<Tuple<Long, Long>, Friendship>{
     /**
@@ -29,7 +29,7 @@ public class FriendshipRepository extends AbstractFileRepository<Tuple<Long, Lon
 //        User user2 = userRepository.findOne(idUser2);
 
         Friendship friendship = new Friendship(idUser1, idUser2);
-        friendship.setDate(LocalDateTime.now());
+        friendship.setDate(LocalDate.now());
         friendship.setId(new Tuple<>(idUser1, idUser2));
 
 //        user1.addFriend(user2);

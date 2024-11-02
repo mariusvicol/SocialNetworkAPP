@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class User extends Entity<Long>{
-    private String firstName;
-    private String lastName;
+    private final String firstName;
+    private final String lastName;
     private final List<User> friends;
 
     public User(String firstName, String lastName) {
@@ -19,16 +19,8 @@ public class User extends Entity<Long>{
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
     public String getLastName() {
         return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
     }
 
     public List<User> getFriends() {
@@ -46,6 +38,11 @@ public class User extends Entity<Long>{
     @Override
     public String toString() {
         return "Utilizator ID-> " + getId() + ": " + firstName + " " + lastName;
+    }
+
+    public void setFriends(List<User> friends) {
+        this.friends.clear();
+        this.friends.addAll(friends);
     }
 
     @Override

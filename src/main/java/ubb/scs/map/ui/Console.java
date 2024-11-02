@@ -177,7 +177,6 @@ public class Console {
     private void communitiesNumberUI(){
         int comunitiesNumber = communitiesService.communitiesNumber();
         printAllCommunities();
-        System.out.println();
         System.out.println("Number of communities is: " + comunitiesNumber);
     }
 

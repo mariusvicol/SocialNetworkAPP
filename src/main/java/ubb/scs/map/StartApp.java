@@ -6,6 +6,8 @@ import ubb.scs.map.domain.User;
 import ubb.scs.map.domain.validators.FriendshipValidator;
 import ubb.scs.map.domain.validators.UserValidator;
 import ubb.scs.map.repository.Repository;
+import ubb.scs.map.repository.database.FriendshipDBRepository;
+import ubb.scs.map.repository.database.UserDBRepository;
 import ubb.scs.map.repository.file.FriendshipRepository;
 import ubb.scs.map.repository.file.UtilizatorRepository;
 import ubb.scs.map.repository.memory.InMemoryRepository;
@@ -56,6 +58,13 @@ public class StartApp {
     }
 
     private static void startDataBase(){
+        Repository<Long, User> userRepository = new UserDBRepository("jdbc:postgresql://localhost:5432/socialnetwork", "postgres", "0806", new UserValidator());
+        Repository<Tuple<Long,Long>, Friendship> friendshipRepository = new FriendshipDBRepository("jdbc:postgresql://localhost:5432/socialnetwork", "postgres", "0806", new FriendshipValidator());
+        NetworkService networkService = new NetworkService(userRepository, friendshipRepository);
 
+        CommunitiesService communitiesService = new CommunitiesService(networkService);
+
+        Console consoleDB = new Console(networkService, communitiesService, true);
+        consoleDB.menu();
     }
 }

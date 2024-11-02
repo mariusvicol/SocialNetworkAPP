@@ -17,6 +17,14 @@ public class Tuple<E1, E2> {
         this.e2 = e2;
     }
 
+    public E1 getFirst() {
+        return e1;
+    }
+
+    public E2 getSecond() {
+        return e2;
+    }
+
     @Override
     public String toString() {
         return e1 + "," + e2;

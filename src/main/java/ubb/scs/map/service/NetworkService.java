@@ -5,9 +5,8 @@ import ubb.scs.map.domain.Tuple;
 import ubb.scs.map.domain.User;
 import ubb.scs.map.domain.validators.ValidationException;
 import ubb.scs.map.repository.Repository;
-import ubb.scs.map.repository.file.UtilizatorRepository;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,12 +25,26 @@ public class NetworkService {
     public NetworkService(Repository<Long, User> userRepository, Repository<Tuple<Long, Long>, Friendship> friendshipRepository) {
         this.userRepository = userRepository;
         this.friendshipRepository = friendshipRepository;
-        if(userRepository.getClass() == UtilizatorRepository.class)
-            addAllFriendsLoad();
+        addAllFriendsLoad();
+    }
+
+    public void addFriendsForUser(User user){
+        List<User> friends = new ArrayList<>();
+        friendshipRepository.findAll().forEach(friendship -> {
+            if(friendship.getIdUser1().equals(user.getId())){
+                User friend = userRepository.findOne(friendship.getIdUser2()).orElseThrow();
+                friends.add(friend);
+            }
+            if(friendship.getIdUser2().equals(user.getId())){
+                User friend = userRepository.findOne(friendship.getIdUser1()).orElseThrow();
+                friends.add(friend);
+            }
+        });
+        user.setFriends(friends);
     }
 
     /// TODO: Find a better solution for adding all friends from file that contains friendships..
-    private void addAllFriendsLoad(){
+    public void addAllFriendsLoad(){
         friendshipRepository.findAll().forEach(friendship -> {
             User user1 = userRepository.findOne(friendship.getIdUser1()).orElseThrow();
             User user2 = userRepository.findOne(friendship.getIdUser2()).orElseThrow();
@@ -45,7 +58,9 @@ public class NetworkService {
      * @return User object for user with userId id.
      */
     public User getUser(Long userId) {
-        return userRepository.findOne(userId).orElseThrow(ValidationException::new);
+        User user = userRepository.findOne(userId).orElseThrow(ValidationException::new);
+        addFriendsForUser(user);
+        return user;
     }
 
     /**
@@ -102,7 +117,7 @@ public class NetworkService {
      */
     public void removeUser(Long id){
         try {
-            userRepository.findOne(id).orElseThrow(ValidationException::new);
+            getUser(id);
             deleteAllFriends(id);
             userRepository.delete(id);
         }
@@ -117,7 +132,7 @@ public class NetworkService {
      */
     public List<User> getFriends(Long id){
         try {
-            User user = userRepository.findOne(id).orElseThrow(ValidationException::new);
+            User user = getUser(id);
             return user.getFriends();
         }
         catch (ValidationException e){
@@ -142,12 +157,12 @@ public class NetworkService {
         Long idMin = min(idUser1, idUser2);
         Long idMax = max(idUser1, idUser2);
         friendship.setId(new Tuple<>(idMin, idMax));
-        friendship.setDate(LocalDateTime.now());
+        friendship.setDate(LocalDate.now());
         User user1;
         User user2;
         try {
-            user1 = userRepository.findOne(idUser1).orElseThrow(ValidationException::new);
-            user2 = userRepository.findOne(idUser2).orElseThrow(ValidationException::new);
+            user1 = getUser(idUser1);
+            user2 = getUser(idUser2);
         }
         catch (ValidationException e){
             throw new ValidationException("Users not found.");
@@ -157,7 +172,7 @@ public class NetworkService {
                 throw new ValidationException("Friendship already exists.");
             }
         });
-        if (!user1.getFriends().contains(user2)) {
+        if (friendshipRepository.findOne(friendship.getId()).isEmpty()) {
             user1.addFriend(user2);
             user2.addFriend(user1);
             friendshipRepository.save(friendship);

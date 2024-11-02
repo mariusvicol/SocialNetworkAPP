@@ -1,6 +1,6 @@
 package ubb.scs.map.domain;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 import static java.lang.Math.max;
@@ -9,8 +9,8 @@ import static java.lang.Math.min;
 
 public class Friendship extends Entity<Tuple<Long,Long>> {
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private LocalDateTime date;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private LocalDate date;
     private final Long idUser1;
     private final Long idUser2;
 
@@ -33,7 +33,7 @@ public class Friendship extends Entity<Tuple<Long,Long>> {
     /**
      * @param date - the date when the friendship was created
      */
-    public void setDate(LocalDateTime date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 }

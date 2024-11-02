@@ -36,7 +36,6 @@ public class CommunitiesService {
                 }
             }
         }
-        System.out.println();
         return result;
     }
 
