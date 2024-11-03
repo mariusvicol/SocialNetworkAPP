@@ -24,12 +24,12 @@ public class FriendshipDBRepository implements Repository<Tuple<Long, Long>, Fri
         this.validator = validator;
     }
     @Override
-    public Optional<Friendship> findOne(Tuple<Long, Long> longLongTuple) {
+    public Optional<Friendship> findOne(Tuple<Long, Long> id) {
         Friendship friendship = null;
         try(Connection connection = DriverManager.getConnection(url, username, password);
             PreparedStatement statement = connection.prepareStatement("SELECT * from friendships WHERE id_user1 = ? AND id_user2 = ?")) {
-            statement.setLong(1, longLongTuple.getFirst());
-            statement.setLong(2, longLongTuple.getSecond());
+            statement.setLong(1, id.getFirst());
+            statement.setLong(2, id.getSecond());
             try(ResultSet resultSet = statement.executeQuery()) {
                 if(resultSet.next()) {
                     Long idUser1 = resultSet.getLong("id_user1");
@@ -86,17 +86,17 @@ public class FriendshipDBRepository implements Repository<Tuple<Long, Long>, Fri
     }
 
     @Override
-    public Optional<Friendship> delete(Tuple<Long, Long> longLongTuple) {
+    public Optional<Friendship> delete(Tuple<Long, Long> id) {
         int rez;
         try(Connection connection = DriverManager.getConnection(url, username, password);
             PreparedStatement statement = connection.prepareStatement("DELETE FROM friendships WHERE id_user1 = ? AND id_user2 = ?")) {
-            statement.setLong(1, longLongTuple.getFirst());
-            statement.setLong(2, longLongTuple.getSecond());
+            statement.setLong(1, id.getFirst());
+            statement.setLong(2, id.getSecond());
             rez = statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return rez == 1 ? Optional.of(new Friendship(longLongTuple.getFirst(), longLongTuple.getSecond())) : Optional.empty();
+        return rez == 1 ? Optional.of(new Friendship(id.getFirst(), id.getSecond())) : Optional.empty();
     }
 
     @Override
