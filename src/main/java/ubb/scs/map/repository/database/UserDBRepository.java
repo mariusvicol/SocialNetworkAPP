@@ -24,18 +24,18 @@ public class UserDBRepository implements Repository<Long, User> {
     }
 
     @Override
-    public Optional<User> findOne(Long aLong) {
+    public Optional<User> findOne(Long id) {
         User user = null;
         try(Connection connection = DriverManager.getConnection(url, username, password);
             PreparedStatement statement = connection.prepareStatement("SELECT * from users WHERE id = ?")) {
-            statement.setLong(1, aLong);
+            statement.setLong(1, id);
             try(ResultSet resultSet = statement.executeQuery()) {
                 if(resultSet.next()) {
-                    Long id = resultSet.getLong("id");
+                    Long idUser = resultSet.getLong("id");
                     String nume = resultSet.getString("nume");
                     String prenume = resultSet.getString("prenume");
                     user = new User(nume, prenume);
-                    user.setId(id);
+                    user.setId(idUser);
                 }
             }
         }
@@ -84,15 +84,15 @@ public class UserDBRepository implements Repository<Long, User> {
     }
 
     @Override
-    public Optional<User> delete(Long aLong) {
+    public Optional<User> delete(Long id) {
         int rez = -1;
-        Optional<User> user = findOne(aLong);
+        Optional<User> user = findOne(id);
         if (user.isEmpty()) {
             return Optional.empty();
         }
         try (Connection connection = DriverManager.getConnection(url, username, password);
              PreparedStatement statement = connection.prepareStatement("DELETE FROM users WHERE id = ?")) {
-            statement.setLong(1, aLong);
+            statement.setLong(1, id);
             rez = statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
