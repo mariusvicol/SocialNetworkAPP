@@ -17,10 +17,7 @@ SocialNetworkAPP is a Java-based application that allows users to connect, commu
 ## Tech Stack
 
 - **Java 8+** for backend logic
-- **Spring Boot** for the application setup and API
-- **MySQL** for data storage
-- **Apache Kafka** for message handling and notifications
-- **TensorFlow / Weka** for implementing machine learning models (optional)
+- **Postgres** for data storage
 - **Maven** for dependency management
 
 ## Installation
@@ -40,11 +37,3 @@ Ensure the following are installed on your machine:
     git clone https://github.com/mariusvicol/SocialNetworkAPP.git
     cd SocialNetworkAPP
     ```
-
-2. Set up the database:
-    - Create a MySQL database named `socialnetworkdb`.
-    - Configure the database connection in the `application.properties` file.
-
-    Example configuration:
-    ```properties
-    spring.d
